@@ -5,3 +5,4 @@ export { FeeOverview } from "./FeeOverview";
 export { DistributionBreakdown } from "./DistributionBreakdown";
 export { ClaimActivity } from "./ClaimActivity";
 export { ClaimersBreakdown } from "./ClaimersBreakdown";
+export { LoadingSkeleton } from "./LoadingSkeleton";

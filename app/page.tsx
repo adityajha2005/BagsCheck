@@ -9,6 +9,7 @@ import {
   DistributionBreakdown,
   ClaimActivity,
   ClaimersBreakdown,
+  LoadingSkeleton,
 } from "./components";
 import { isValidTokenMint } from "@/lib/validation";
 import type { TokenAnalysis } from "@/lib/analyze";
@@ -50,7 +51,18 @@ export default function Home() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch token data");
+        let errorMessage = errorData.error || "Failed to fetch token data";
+        
+        // Handle specific status codes
+        if (response.status === 429) {
+          errorMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (response.status === 504) {
+          errorMessage = "Request timeout: The API took too long to respond. Please try again.";
+        } else if (response.status === 502) {
+          errorMessage = errorData.error || "Service temporarily unavailable. Please try again.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -94,10 +106,14 @@ export default function Home() {
 
           {/* Error State */}
           {error && (
-            <div className="mb-8 p-6 bg-bags-accent-red/10 border border-bags-accent-red/30 text-bags-accent-red">
-              {error}
+            <div className="mb-8 p-6 bg-bags-accent-red/10 border border-bags-accent-red/30 text-bags-accent-red rounded-lg">
+              <p className="font-medium mb-1">Error</p>
+              <p className="text-sm">{error}</p>
             </div>
           )}
+
+          {/* Loading Skeleton */}
+          {loading && !analysis && <LoadingSkeleton />}
 
           {/* Results - Only show after successful fetch */}
           {analysis && !loading && (

@@ -87,22 +87,37 @@ async function bagsRequest<T>(
     url.searchParams.append(key, value);
   });
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      "x-api-key": apiKey,
-    },
-    cache: "no-store", // No caching for v1
-  });
+  // Add timeout (30 seconds)
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-  const data: BagsAPIResponse<T> = await response.json();
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        "x-api-key": apiKey,
+      },
+      cache: "no-store", // No caching for v1
+      signal: controller.signal,
+    });
 
-  if (!data.success) {
-    // Extract error message from API response
-    const errorMessage = data.error || "Unknown API error";
-    throw new Error(`Bags API error (${response.status}): ${errorMessage}`);
+    clearTimeout(timeoutId);
+
+    const data: BagsAPIResponse<T> = await response.json();
+
+    if (!data.success) {
+      // Extract error message from API response
+      const errorMessage = data.error || "Unknown API error";
+      throw new Error(`Bags API error (${response.status}): ${errorMessage}`);
+    }
+
+    return data.response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Request timeout: The API took too long to respond. Please try again.");
+    }
+    throw error;
   }
-
-  return data.response;
 }
 
 // API Functions
