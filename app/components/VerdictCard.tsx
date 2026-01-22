@@ -12,22 +12,25 @@ interface VerdictCardProps {
 
 const verdictConfig = {
   HEALTHY: {
-    color: "text-bags-green",
-    bgColor: "bg-bags-green/10",
-    borderColor: "border-bags-green/30",
-    icon: "✓",
+    textColor: "text-bags-green",
+    leftBorderColor: "border-l-bags-green",
+    patternBg: "bg-bags-green/5",
+    patternBorder: "border-bags-green/20",
+    patternText: "text-bags-green/80",
   },
   CENTRALIZED: {
-    color: "text-yellow-400",
-    bgColor: "bg-yellow-400/10",
-    borderColor: "border-yellow-400/30",
-    icon: "⚠",
+    textColor: "text-[#f5c842]",
+    leftBorderColor: "border-l-[#f5c842]",
+    patternBg: "bg-[#f5c842]/5",
+    patternBorder: "border-[#f5c842]/20",
+    patternText: "text-[#f5c842]/80",
   },
   DORMANT: {
-    color: "text-bags-text-secondary",
-    bgColor: "bg-bags-bg-card",
-    borderColor: "border-bags-border",
-    icon: "○",
+    textColor: "text-bags-text-muted",
+    leftBorderColor: "border-l-bags-border",
+    patternBg: "bg-bags-bg-secondary/50",
+    patternBorder: "border-bags-border",
+    patternText: "text-bags-text-muted",
   },
 };
 
@@ -51,30 +54,29 @@ ${why}`;
 
   return (
     <div
-      className={`${config.bgColor} border ${config.borderColor} p-8 space-y-4 relative rounded-2xl`}
+      className={`bg-bags-bg-card border border-bags-border ${config.leftBorderColor} border-l-2 p-8 space-y-4 relative rounded-lg`}
     >
       {/* Verdict Label */}
       <div className="flex items-center gap-3">
-        {/* <span className={`text-3xl ${config.color}`}>{config.icon}</span> */}
-        <h2 className={`text-3xl font-semibold ${config.color}`}>
+        <h2 className={`text-3xl font-bold ${config.textColor}`}>
           {verdict}
         </h2>
       </div>
 
       {/* Pattern Label */}
-      <div className="inline-flex items-center gap-2 bg-bags-bg-secondary/50 border border-bags-border px-3 py-1.5 rounded-full">
+      <div className={`inline-flex items-center gap-2 ${config.patternBg} border ${config.patternBorder} px-3 py-1.5 rounded-full`}>
         <span className="text-xs font-medium text-bags-text-muted uppercase tracking-wide">Pattern:</span>
-        <span className="text-xs font-semibold text-bags-text-primary">{pattern}</span>
+        <span className={`text-xs font-semibold ${config.patternText}`}>{pattern}</span>
       </div>
 
       {/* Summary */}
-      <p className="text-lg text-bags-text-primary leading-relaxed">
+      <p className="text-lg text-white leading-relaxed">
         {summary}
       </p>
 
       {/* Why this verdict? */}
-      <p className="text-sm text-bags-text-secondary">
-        <span className="font-bold">Why:</span> {why}
+      <p className="text-sm text-bags-text-muted">
+        <span className="font-semibold text-bags-text-secondary">Why:</span> {why}
       </p>
 
       {/* Actions - Bottom Right */}

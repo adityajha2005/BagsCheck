@@ -166,22 +166,23 @@ export async function fetchAllTokenData(tokenMint: string) {
   const nowUnixSeconds = Math.floor(Date.now() / 1000);
   const oneDayAgoUnixSeconds = nowUnixSeconds - (24 * 60 * 60);
 
-  const [lifetimeFees, claimStats, claimEvents24h, claimEventsRecent, creators] = await Promise.all([
+  const [lifetimeFees, claimStats, claimEvents24h, creators] = await Promise.all([
     getLifetimeFees(tokenMint),
     getClaimStats(tokenMint),
     getClaimEventsTimeRange(tokenMint, oneDayAgoUnixSeconds, nowUnixSeconds), // Last 24h for activity
-    getClaimEvents(tokenMint, 100), // Last 100 events for last claim timestamp
     getCreators(tokenMint),
   ]);
 
   return {
     lifetimeFees,
     claimStats,
-    // Merge both event lists (24h for count, recent for last timestamp)
+    // Use 24h events for both count AND last timestamp (offset mode returns old events)
     claimEvents: {
-      events: claimEvents24h.events, // Use 24h events for accurate count
+      events: claimEvents24h.events,
     },
-    claimEventsRecent: claimEventsRecent, // Keep recent events for last claim timestamp
+    claimEventsRecent: {
+      events: claimEvents24h.events, // Same data for last claim timestamp
+    },
     creators,
   };
 }

@@ -106,44 +106,42 @@ function getClaimCount24h(events: Array<{ timestamp: string | number }>): number
 function getLastClaimTimestamp(events: Array<{ timestamp: string | number }>): string | undefined {
   if (!events || events.length === 0) return undefined;
 
-  // Events are typically sorted newest first
-  // Return the first valid timestamp (convert to ISO 8601 string if needed)
+  // Find the MOST RECENT valid timestamp across all events
+  let latestTimestampMs = -1;
+  let latestIsoString: string | undefined;
+
   for (const event of events) {
-    if (!event.timestamp) {
-      continue;
-    }
-    
+    if (!event.timestamp) continue;
+
     // Handle both Unix timestamp (number in seconds) and ISO 8601 string
     let timestampMs: number;
-    let isoString: string;
-    
+
     if (typeof event.timestamp === "number") {
       // Unix timestamp in seconds, convert to milliseconds
       timestampMs = event.timestamp * 1000;
-      isoString = new Date(timestampMs).toISOString();
     } else if (typeof event.timestamp === "string") {
       if (event.timestamp.trim() === "") continue;
       const dateObj = new Date(event.timestamp);
       timestampMs = dateObj.getTime();
-      isoString = event.timestamp; // Already ISO string
     } else {
       continue;
     }
-    
-    // Check if parsing was successful and within valid range
-    if (isNaN(timestampMs) || timestampMs <= 0) {
-      continue;
-    }
-    
+
+    // Validate timestamp
+    if (isNaN(timestampMs) || timestampMs <= 0) continue;
+
     const MIN_VALID_TIMESTAMP = new Date("2020-01-01").getTime();
     const MAX_VALID_TIMESTAMP = Date.now() + 86400000;
-    
-    if (timestampMs > MIN_VALID_TIMESTAMP && timestampMs < MAX_VALID_TIMESTAMP) {
-      return isoString; // Return ISO 8601 string format
+    if (timestampMs <= MIN_VALID_TIMESTAMP || timestampMs >= MAX_VALID_TIMESTAMP) continue;
+
+    // Keep the most recent one
+    if (timestampMs > latestTimestampMs) {
+      latestTimestampMs = timestampMs;
+      latestIsoString = new Date(timestampMs).toISOString();
     }
   }
-  
-  return undefined;
+
+  return latestIsoString;
 }
 
 function getActivityStatus(
@@ -168,8 +166,10 @@ function calculateVerdict(
   top5ClaimerPct: number,
   claimStats: any[]
 ): { verdict: Verdict; summary: string; why: string } {
+  const totalClaimers = claimStats.length;
+
   // DORMANT: No meaningful fees or no claimers
-  if (lifetimeFeesSOL < DORMANT_FEE_THRESHOLD_SOL || claimStats.length === 0) {
+  if (lifetimeFeesSOL < DORMANT_FEE_THRESHOLD_SOL || totalClaimers === 0) {
     return {
       verdict: "DORMANT",
       summary: "Minimal fee activity. Token has not generated meaningful revenue.",
@@ -179,28 +179,31 @@ function calculateVerdict(
     };
   }
 
-  // CENTRALIZED: Top wallets dominate
+  // CENTRALIZED: Top 1 wallet dominates
   if (top1ClaimerPct > CENTRALIZED_TOP1_THRESHOLD) {
     return {
       verdict: "CENTRALIZED",
-      summary: `Single wallet controls ${top1ClaimerPct.toFixed(1)}% of claimed fees. Highly concentrated distribution.`,
-      why: `Top 1 wallet controls ${top1ClaimerPct.toFixed(1)}% of claimed fees`,
+      summary: `Single wallet controls ${top1ClaimerPct.toFixed(1)}% of fees. Highly concentrated distribution.`,
+      why: `Top 1 wallet controls ${top1ClaimerPct.toFixed(1)}% of fees`,
     };
   }
 
-  if (top5ClaimerPct > CENTRALIZED_TOP5_THRESHOLD) {
+  // CENTRALIZED: Top 5 dominate (only applies if 5+ claimers exist)
+  if (totalClaimers >= 5 && top5ClaimerPct > CENTRALIZED_TOP5_THRESHOLD) {
     return {
       verdict: "CENTRALIZED",
-      summary: `Top 5 wallets control ${top5ClaimerPct.toFixed(1)}% of claimed fees. Distribution is heavily concentrated.`,
-      why: `Top 5 wallets control ${top5ClaimerPct.toFixed(1)}% of claimed fees`,
+      summary: `Top 5 wallets control ${top5ClaimerPct.toFixed(1)}% of fees. Distribution is heavily concentrated.`,
+      why: `Top 5 wallets control ${top5ClaimerPct.toFixed(1)}% of fees`,
     };
   }
 
   // HEALTHY: Well distributed
   return {
     verdict: "HEALTHY",
-    summary: "Fees are well distributed across multiple claimers. No single wallet dominates.",
-    why: `Top 1 wallet: ${top1ClaimerPct.toFixed(1)}%, Top 5: ${top5ClaimerPct.toFixed(1)}%`,
+    summary: "Fees are well distributed across claimers. No single wallet dominates.",
+    why: totalClaimers >= 5 
+      ? `Top 1: ${top1ClaimerPct.toFixed(1)}%, Top 5: ${top5ClaimerPct.toFixed(1)}%`
+      : `Top 1: ${top1ClaimerPct.toFixed(1)}% across ${totalClaimers} claimer${totalClaimers > 1 ? 's' : ''}`,
   };
 }
 
