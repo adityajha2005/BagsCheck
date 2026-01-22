@@ -247,16 +247,59 @@ function determinePattern(
 
 // Main analysis function
 
+// Creator type (from API, without totalClaimed)
+interface Creator {
+  username?: string;
+  pfp?: string;
+  royaltyBps: number;
+  isCreator: boolean;
+  wallet: string;
+  provider?:
+    | "apple"
+    | "google"
+    | "email"
+    | "solana"
+    | "twitter"
+    | "tiktok"
+    | "kick"
+    | "instagram"
+    | "onlyfans"
+    | "github";
+  providerUsername?: string | null;
+}
+
+// ClaimStat type (from API, with totalClaimed)
+interface ClaimStat {
+  username?: string;
+  pfp?: string;
+  royaltyBps: number;
+  isCreator: boolean;
+  wallet: string;
+  totalClaimed: string;
+  provider?:
+    | "apple"
+    | "google"
+    | "email"
+    | "solana"
+    | "twitter"
+    | "tiktok"
+    | "kick"
+    | "instagram"
+    | "onlyfans"
+    | "github";
+  providerUsername?: string | null;
+}
+
 export function analyzeToken(rawData: {
   lifetimeFees: string;
-  claimStats: ClaimerInfo[];
+  claimStats: ClaimStat[];
   claimEvents: {
-    events: Array<{ timestamp: string }>;
+    events: Array<{ timestamp: string | number }>;
   };
   claimEventsRecent: {
-    events: Array<{ timestamp: string }>;
+    events: Array<{ timestamp: string | number }>;
   };
-  creators: ClaimerInfo[];
+  creators: Creator[];
 }): TokenAnalysis {
   // Merge creators (full config) with claimStats (actual claims)
   // Use creators as the base to ensure we show ALL configured claimers
