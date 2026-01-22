@@ -45,9 +45,15 @@ export function TokenInput({
             <div className="w-5 h-5 border-2 border-bags-green/30 border-t-bags-green rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="absolute right-6 top-1/2 -translate-y-1/2 text-bags-text-secondary pointer-events-none">
+          <button
+            onClick={handleSubmit}
+            disabled={!value.trim() || loading}
+            className="absolute right-6 top-1/2 -translate-y-1/2 text-bags-text-secondary hover:text-bags-green transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+            title="Search"
+            type="button"
+          >
             <FaSearchDollar />
-          </div>
+          </button>
         )}
       </div>
 
