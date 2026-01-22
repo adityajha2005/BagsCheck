@@ -38,7 +38,7 @@ export function TokenInput({
           onKeyDown={handleKeyDown}
           placeholder={loading ? "Loading..." : "Paste token CA"}
           disabled={loading}
-          className="w-full h-16 bg-bags-bg-secondary border border-bags-border text-white text-lg px-6 pr-14 focus:outline-none focus:border-bags-green focus:ring-1 focus:ring-bags-green/30 caret-bags-green transition-all placeholder:text-bags-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-16 rounded-lg bg-bags-bg-secondary border border-bags-border text-white text-lg px-6 pr-14 focus:outline-none focus:border-bags-green focus:ring-1 focus:ring-bags-green/30 caret-bags-green transition-all placeholder:text-bags-text-secondary disabled:opacity-50 disabled:cursor-not-allowed"
         />
         {loading ? (
           <div className="absolute right-6 top-1/2 -translate-y-1/2">
