@@ -1,21 +1,4 @@
-/**
- * POST /api/launch/create-launch-transaction
- *
- * Creates a launch transaction via Bags API.
- * Returns a serialized base58 transaction for the user to sign.
- *
- * Body: {
- *   tokenMint: string,         // Token mint address
- *   wallet: string,            // Launcher wallet address (renamed from creator)
- *   ipfs: string,              // Metadata URL / CID from create-token-info
- *   configKey: string,         // Fee share config PDA (created separately)
- *   initialBuyAmount?: string, // SOL amount as string (e.g., "0.1")
- *   tipWallet?: string,        // Optional tip wallet
- *   tipAmount?: string         // Optional tip amount in SOL
- * }
- *
- * Returns: { transaction: string } // base58 serialized transaction
- */
+
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -65,12 +48,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // if (!body.configKey) {
-    //   return NextResponse.json(
-    //     { error: "configKey (fee share config PDA) is required" },
-    //     { status: 400 }
-    //   );
-    // }
+
 
     // Validate Solana address format (base58, 32-44 chars)
     const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -128,9 +106,7 @@ export async function POST(request: NextRequest) {
       tipLamports = Math.floor(tipAmount * 1e9);
     }
 
-    // TODO: AI Feature Hook - Smart launch recommendations
-    // This is where AI could analyze market conditions and suggest
-    // optimal initial buy amounts based on similar token launches
+
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 30000);

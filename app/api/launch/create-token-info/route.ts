@@ -1,11 +1,4 @@
-/**
- * POST /api/launch/create-token-info
- * 
- * Proxies token metadata upload to Bags API.
- * Handles multipart/form-data with image + metadata fields.
- * 
- * Returns: { tokenMint: string, metadataUrl: string, imageUrl: string }
- */
+
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -84,9 +77,7 @@ export async function POST(request: NextRequest) {
     if (twitter) bagsFormData.append("twitter", twitter);
     if (website) bagsFormData.append("website", website);
 
-    // TODO: AI Feature Hook - Auto-generate social links from description
-    // This is where AI could analyze the token concept and suggest
-    // relevant social media handles or website URLs
+
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 60000); // 60s timeout for upload

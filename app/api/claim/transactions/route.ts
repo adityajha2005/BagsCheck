@@ -2,9 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const BAGS_API_BASE = 'https://public-api-v2.bags.fm/api/v1';
 
-/**
- * Interface for claim transaction request body
- */
 interface ClaimTransactionsRequest {
   /** Public key of the fee claimer wallet */
   feeClaimer: string;
@@ -42,15 +39,6 @@ interface ClaimTransactionsRequest {
   customFeeVaultClaimerSide?: 'A' | 'B' | null;
 }
 
-/**
- * POST /api/claim/transactions
- * 
- * Generate transactions to claim fees from virtual pools and/or DAMM v2 positions.
- * Supports both v1 and v2 fee share programs.
- * 
- * @param request - NextRequest with claim parameters
- * @returns JSON response with serialized claim transactions
- */
 export async function POST(request: NextRequest) {
   try {
     const body: ClaimTransactionsRequest = await request.json();

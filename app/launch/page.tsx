@@ -9,14 +9,7 @@ import { FaWandMagicSparkles } from "react-icons/fa6";
 import { ConnectWalletButton } from "../components/ConnectWalletButton";
 import { ReviewModal } from "../components/ReviewModal";
 
-// ... (interfaces etc remain same, skipping to keep context small if possible, but I need to be careful with replace)
-// Actually, I can't check imports with replace_file_content easily without context.
-// I will use two chunks. One for import, one for function.
 
-// Chunk 1: Imports
-// Chunk 2: signAndSendTransaction logic
-// Wait, replace_file_content checks for SINGLE CONTIGUOUS block. I cannot do two chunks in one call.
-// I will use multi_replace_file_content tool.
 
 interface LaunchFormData {
   name: string;
@@ -689,7 +682,7 @@ export default function LaunchPage() {
                 maxLength={32}
                 className="w-full px-4 py-3 bg-[#07090c] border border-[#141922] rounded-lg text-white placeholder-[#6b7280] focus:outline-none focus:border-[#00ff7f]/50 transition-colors"
               />
-              {/* TODO: AI Feature Hook - Auto-generate name suggestions based on concept input */}
+
             </div>
 
             {/* Token Symbol */}
@@ -707,7 +700,7 @@ export default function LaunchPage() {
                 maxLength={10}
                 className="w-full px-4 py-3 bg-[#07090c] border border-[#141922] rounded-lg text-white placeholder-[#6b7280] focus:outline-none focus:border-[#00ff7f]/50 transition-colors"
               />
-              {/* TODO: AI Feature Hook - Suggest symbol based on token name */}
+
             </div>
 
             {/* Description */}
@@ -723,7 +716,7 @@ export default function LaunchPage() {
                 maxLength={1000}
                 className="w-full px-4 py-3 bg-[#07090c] border border-[#141922] rounded-lg text-white placeholder-[#6b7280] focus:outline-none focus:border-[#00ff7f]/50 transition-colors resize-none"
               />
-              {/* TODO: AI Feature Hook - Auto-generate description from concept */}
+
             </div>
 
             {/* Initial Buy Amount */}
@@ -747,7 +740,7 @@ export default function LaunchPage() {
               <p className="text-xs text-[#6b7280] mt-1">
                 Optional: Buy tokens immediately after launch (max 10 SOL)
               </p>
-              {/* TODO: AI Feature Hook - Suggest optimal initial buy amount based on market conditions */}
+
             </div>
 
             {/* Social Links (Optional) */}
@@ -776,7 +769,7 @@ export default function LaunchPage() {
                 placeholder="Website URL"
                 className="w-full px-4 py-3 bg-[#07090c] border border-[#141922] rounded-lg text-white placeholder-[#6b7280] focus:outline-none focus:border-[#00ff7f]/50 transition-colors"
               />
-              {/* TODO: AI Feature Hook - Auto-extract social links from project description */}
+
             </div>
 
             {/* Submit Button */}

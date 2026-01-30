@@ -427,14 +427,7 @@ export default function MyTokensPage() {
                         </p>
                       </div>
 
-                      {/* <a
-                        href={getExplorerLink(position.baseMint)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-400 hover:text-[#02ff40] transition-colors"
-                      >
-                        <ArrowUpRight className="w-4 h-4" />
-                      </a> */}
+
                       {position.isMigrated && (
                         <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full">
                           Migrated
