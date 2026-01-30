@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     const symbol = formData.get("symbol") as string | null;
     const description = formData.get("description") as string | null;
     const image = formData.get("image") as File | null;
+    const imageUrl = formData.get("imageUrl") as string | null;
 
     if (!name || !symbol || !description) {
       return NextResponse.json(
@@ -37,27 +38,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!image) {
+    if (!image && !imageUrl) {
       return NextResponse.json(
-        { error: "Token image is required" },
+        { error: "Token image or imageUrl is required" },
         { status: 400 }
       );
     }
 
-    // Validate image type
-    if (!image.type.startsWith("image/")) {
-      return NextResponse.json(
-        { error: "Invalid file type. Only images are allowed" },
-        { status: 400 }
-      );
-    }
+    // Validate image type if file is provided
+    if (image) {
+      if (!image.type.startsWith("image/")) {
+        return NextResponse.json(
+          { error: "Invalid file type. Only images are allowed" },
+          { status: 400 }
+        );
+      }
 
-    // Validate image size (max 5MB)
-    if (image.size > 5 * 1024 * 1024) {
-      return NextResponse.json(
-        { error: "Image too large. Maximum size is 5MB" },
-        { status: 400 }
-      );
+      // Validate image size (max 5MB)
+      if (image.size > 5 * 1024 * 1024) {
+        return NextResponse.json(
+          { error: "Image too large. Maximum size is 5MB" },
+          { status: 400 }
+        );
+      }
     }
 
     // Forward to Bags API
@@ -65,7 +68,12 @@ export async function POST(request: NextRequest) {
     bagsFormData.append("name", name);
     bagsFormData.append("symbol", symbol);
     bagsFormData.append("description", description);
-    bagsFormData.append("image", image, image.name);
+
+    if (imageUrl) {
+      bagsFormData.append("imageUrl", imageUrl);
+    } else if (image) {
+      bagsFormData.append("image", image, image.name);
+    }
 
     // Optional fields
     const telegram = formData.get("telegram") as string | null;
@@ -108,6 +116,7 @@ export async function POST(request: NextRequest) {
       }
 
       const data = await response.json();
+      console.log("Bags API create-token-info response:", JSON.stringify(data, null, 2));
 
       if (!data.success) {
         return NextResponse.json(

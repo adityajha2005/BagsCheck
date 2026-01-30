@@ -65,12 +65,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.configKey) {
-      return NextResponse.json(
-        { error: "configKey (fee share config PDA) is required" },
-        { status: 400 }
-      );
-    }
+    // if (!body.configKey) {
+    //   return NextResponse.json(
+    //     { error: "configKey (fee share config PDA) is required" },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Validate Solana address format (base58, 32-44 chars)
     const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
         tokenMint: string;
         wallet: string;
         ipfs: string;
-        configKey: string;
+        configKey?: string; // Made optional
         initialBuyLamports: number;
         tipWallet?: string;
         tipLamports?: number;
@@ -160,6 +160,8 @@ export async function POST(request: NextRequest) {
       if (tipLamports !== undefined) {
         bagsRequestBody.tipLamports = tipLamports;
       }
+
+      console.log("Sending to Bags API:", JSON.stringify(bagsRequestBody));
 
       const response = await fetch(
         `${BAGS_API_BASE}/token-launch/create-launch-transaction`,
@@ -186,6 +188,7 @@ export async function POST(request: NextRequest) {
       }
 
       const data = await response.json();
+      console.log("Bags API launch response:", JSON.stringify(data));
 
       if (!data.success) {
         return NextResponse.json(
@@ -194,14 +197,24 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Handle response structure: can be { response: "txString" } or { response: { transaction: "txString" } }
+      const transaction = typeof data.response === 'string'
+        ? data.response
+        : data.response?.transaction;
+
+      if (!transaction) {
+        return NextResponse.json(
+          { error: "Invalid response from Bags API: missing transaction" },
+          { status: 502 }
+        );
+      }
+
       // Return the serialized transaction
       return NextResponse.json({
         success: true,
-        transaction: data.response.transaction,
+        transaction: transaction,
         // Include additional info for the UI
         tokenMint: body.tokenMint,
-        // wallet: body.wallet,
-        // initialBuyAmount: body.initialBuyAmount,
       });
     } catch (error) {
       clearTimeout(timeoutId);

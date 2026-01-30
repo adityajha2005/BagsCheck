@@ -23,6 +23,7 @@
  */
 
 "use client";
+import bs58 from "bs58";
 import { Header } from "../components";
 import { useState, useCallback, useRef } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
@@ -31,6 +32,15 @@ import { FaUpload, FaSpinner, FaCheckCircle, FaRocket, FaImage, FaCoins } from "
 import { FaWandMagicSparkles } from "react-icons/fa6";
 import { ConnectWalletButton } from "../components/ConnectWalletButton";
 import { ReviewModal } from "../components/ReviewModal";
+
+// ... (interfaces etc remain same, skipping to keep context small if possible, but I need to be careful with replace)
+// Actually, I can't check imports with replace_file_content easily without context.
+// I will use two chunks. One for import, one for function.
+
+// Chunk 1: Imports
+// Chunk 2: signAndSendTransaction logic
+// Wait, replace_file_content checks for SINGLE CONTIGUOUS block. I cannot do two chunks in one call.
+// I will use multi_replace_file_content tool.
 
 interface LaunchFormData {
   name: string;
@@ -48,6 +58,7 @@ interface LaunchState {
   error: string | null;
   tokenMint: string | null;
   metadataUrl: string | null;
+  configKey: string | null;
   imageUrl: string | null;
   serializedTransaction: string | null;
   signature: string | null;
@@ -74,6 +85,7 @@ const INITIAL_STATE: LaunchState = {
   error: null,
   tokenMint: null,
   metadataUrl: null,
+  configKey: null,
   imageUrl: null,
   serializedTransaction: null,
   signature: null,
@@ -212,15 +224,55 @@ export default function LaunchPage() {
     }
   };
 
+  // Helper to upload image to IPFS (e.g., Pinata)
+  // TODO: Implement this with your IPFS provider credentials
+  const uploadToIpfs = async (file: File): Promise<string | null> => {
+    // Example Pinata implementation:
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_PINATA_JWT}`,
+      },
+      body: formData,
+    });
+
+    const data = await res.json();
+    console.log("Pinata upload response:", data);
+
+    if (!data.IpfsHash) {
+      console.error("Failed to get IpfsHash from Pinata response");
+      return null;
+    }
+
+    return `https://gateway.pinata.cloud/ipfs/${data.IpfsHash}`;
+
+
+    // Return null to fall back to Bags API file upload
+    return null;
+  };
+
   // Upload metadata to backend
-  const uploadMetadata = async (): Promise<{ tokenMint: string; metadataUrl: string; imageUrl: string }> => {
+  const uploadMetadata = async (): Promise<{ tokenMint: string; metadataUrl: string; imageUrl: string; configKey: string }> => {
     if (!formData.image) throw new Error("Image is required");
+
+    // Try to upload image to IPFS first
+    // If successful, we pass the URL. If not (returns null), we pass the file.
+    const ipfsImageUrl = await uploadToIpfs(formData.image);
 
     const uploadFormData = new FormData();
     uploadFormData.append("name", formData.name);
     uploadFormData.append("symbol", formData.symbol);
     uploadFormData.append("description", formData.description);
-    uploadFormData.append("image", formData.image);
+
+    if (ipfsImageUrl) {
+      uploadFormData.append("imageUrl", ipfsImageUrl);
+    } else {
+      uploadFormData.append("image", formData.image);
+    }
+
     if (formData.telegram) uploadFormData.append("telegram", formData.telegram);
     if (formData.twitter) uploadFormData.append("twitter", formData.twitter);
     if (formData.website) uploadFormData.append("website", formData.website);
@@ -231,20 +283,31 @@ export default function LaunchPage() {
     });
 
     const data = await response.json();
+    console.log("Result from create-token-info:", data);
 
     if (!response.ok) {
       throw new Error(data.error || "Failed to upload metadata");
     }
 
+    // Handle tokenMetadata: it can be a string (URL) or object { uri, image }
+    const metadataUrl = typeof data.tokenMetadata === 'string'
+      ? data.tokenMetadata
+      : data.tokenMetadata?.uri;
+
+    const imageUrl = typeof data.tokenMetadata === 'string'
+      ? data.tokenLaunch?.image // Use the image from tokenLaunch if metadata is just a URL string
+      : data.tokenMetadata?.image;
+
     return {
       tokenMint: data.tokenMint,
-      metadataUrl: data.metadataUrl,
-      imageUrl: data.imageUrl,
+      metadataUrl,
+      imageUrl,
+      configKey: data.tokenLaunch?.config,
     };
   };
 
   // Create launch transaction
-  const createLaunchTransaction = async (tokenMint: string): Promise<string> => {
+  const createLaunchTransaction = async (tokenMint: string, metadataUrl: string, configKey: string): Promise<string> => {
     if (!publicKey) throw new Error("Wallet not connected");
 
     const response = await fetch("/api/launch/create-launch-transaction", {
@@ -252,7 +315,9 @@ export default function LaunchPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         tokenMint,
-        creator: publicKey.toString(),
+        wallet: publicKey.toString(),
+        ipfs: metadataUrl,
+        configKey: configKey,
         initialBuyAmount: formData.initialBuyAmount || undefined,
       }),
     });
@@ -273,7 +338,9 @@ export default function LaunchPage() {
     }
 
     // Deserialize transaction
-    const txBuffer = Buffer.from(serializedTx, "base64");
+    // Strictly use base58 for Solana transactions
+    const txBuffer = bs58.decode(serializedTx);
+
     let transaction: VersionedTransaction | Transaction;
 
     try {
@@ -304,6 +371,52 @@ export default function LaunchPage() {
     return signature;
   };
 
+  // Create fee share config
+  const createFeeShareConfig = async (tokenMint: string, wallet: string): Promise<string> => {
+    // Default to 100% fees to the creator
+    const response = await fetch("/api/launch/create-fee-share-config", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        payer: wallet,
+        baseMint: tokenMint,
+        claimersArray: [wallet],
+        basisPointsArray: [10000],
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Failed to create fee share config");
+    }
+
+    // Check if there are transactions to sign
+    if (data.transactions && data.transactions.length > 0) {
+      console.log(`Signing ${data.transactions.length} fee config creation transactions...`);
+
+      for (const tx of data.transactions) {
+        try {
+          // The API returns { transaction: "base64...", blockhash: ... } 
+          // We just need the transaction string usually, but let's check structure from docs/logs if possible.
+          // Based on previous logs/docs, it's an array of objects which might have 'transaction' field.
+          // Let's assume tx is the object or string.
+          // Docs said: "transactions": [ { "blockhash": ..., "transaction": "..." } ]
+
+          const txString = tx.transaction || tx; // Handle both object and string cases safely
+
+          console.log("Signing config tx...");
+          const signature = await signAndSendTransaction(txString);
+          console.log("Config tx confirmed:", signature);
+        } catch (err) {
+          console.error("Failed to sign/send config creation tx:", err);
+          throw new Error("Failed to initialize fee share config. Please try again.");
+        }
+      }
+    }
+
+    return data.config;
+  };
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -322,23 +435,53 @@ export default function LaunchPage() {
 
     try {
       // Step 1: Upload metadata
-      const { tokenMint, metadataUrl, imageUrl } = await uploadMetadata();
+      const { tokenMint, metadataUrl, imageUrl, configKey: returnedConfigKey } = await uploadMetadata();
+
+      let configKey = returnedConfigKey;
+
+      // Step 1.5: Get config key if not returned
+      if (!configKey) {
+        console.log("Config key missing from metadata upload, fetching new one...");
+        try {
+          configKey = await createFeeShareConfig(tokenMint, publicKey.toString());
+        } catch (e) {
+          console.warn("Could not create config key, trying to proceed without it:", e);
+        }
+      }
+
+      if (!configKey) {
+        throw new Error("Unable to create fee share configuration. Please try again.");
+      }
+
+      console.log("Using Config Key:", configKey);
+
       setState((s) => ({
         ...s,
         tokenMint,
         metadataUrl,
         imageUrl,
+        configKey: configKey,
         step: "creating",
       }));
 
+      // Wait for RPC propagation of the new config account
+      console.log("Waiting for config propagation...");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       // Step 2: Create launch transaction
-      const serializedTransaction = await createLaunchTransaction(tokenMint);
+      const serializedTransaction = await createLaunchTransaction(tokenMint, metadataUrl, configKey);
+
+      if (!serializedTransaction) {
+        throw new Error("Failed to create launch transaction");
+      }
+
       setState((s) => ({
         ...s,
         serializedTransaction,
         step: "review",
       }));
     } catch (error) {
+      console.error("Launch error:", error);
       setState((s) => ({
         ...s,
         step: "error",
@@ -349,23 +492,35 @@ export default function LaunchPage() {
 
   // Handle transaction confirmation
   const handleConfirmTransaction = async () => {
-    if (!state.serializedTransaction) return;
+    if (!state.serializedTransaction) {
+      console.error("No serialized transaction to sign");
+      return;
+    }
+
+    console.log(`Starting confirmation for tx: ${state.serializedTransaction.substring(0, 20)}... (len: ${state.serializedTransaction.length})`);
 
     setState((s) => ({ ...s, step: "signing" }));
 
     try {
       const signature = await signAndSendTransaction(state.serializedTransaction);
+      console.log("Launch transaction confirmed:", signature);
       setState((s) => ({
         ...s,
         signature,
         step: "success",
       }));
     } catch (error) {
+      console.error("Transaction confirmation failed:", error);
+      const errorMessage = error instanceof Error ? error.message : "Transaction failed";
+
       setState((s) => ({
         ...s,
         step: "review",
-        error: error instanceof Error ? error.message : "Transaction failed",
+        error: errorMessage,
       }));
+
+      // Re-throw so ReviewModal can display the error
+      throw error;
     }
   };
 
