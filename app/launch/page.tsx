@@ -240,7 +240,6 @@ export default function LaunchPage() {
     });
 
     const data = await res.json();
-    console.log("Pinata upload response:", data);
 
     if (!data.IpfsHash) {
       console.error("Failed to get IpfsHash from Pinata response");
@@ -283,7 +282,6 @@ export default function LaunchPage() {
     });
 
     const data = await response.json();
-    console.log("Result from create-token-info:", data);
 
     if (!response.ok) {
       throw new Error(data.error || "Failed to upload metadata");
@@ -392,7 +390,6 @@ export default function LaunchPage() {
 
     // Check if there are transactions to sign
     if (data.transactions && data.transactions.length > 0) {
-      console.log(`Signing ${data.transactions.length} fee config creation transactions...`);
 
       for (const tx of data.transactions) {
         try {
@@ -403,10 +400,7 @@ export default function LaunchPage() {
           // Docs said: "transactions": [ { "blockhash": ..., "transaction": "..." } ]
 
           const txString = tx.transaction || tx; // Handle both object and string cases safely
-
-          console.log("Signing config tx...");
           const signature = await signAndSendTransaction(txString);
-          console.log("Config tx confirmed:", signature);
         } catch (err) {
           console.error("Failed to sign/send config creation tx:", err);
           throw new Error("Failed to initialize fee share config. Please try again.");
@@ -441,7 +435,6 @@ export default function LaunchPage() {
 
       // Step 1.5: Get config key if not returned
       if (!configKey) {
-        console.log("Config key missing from metadata upload, fetching new one...");
         try {
           configKey = await createFeeShareConfig(tokenMint, publicKey.toString());
         } catch (e) {
@@ -453,8 +446,6 @@ export default function LaunchPage() {
         throw new Error("Unable to create fee share configuration. Please try again.");
       }
 
-      console.log("Using Config Key:", configKey);
-
       setState((s) => ({
         ...s,
         tokenMint,
@@ -465,7 +456,6 @@ export default function LaunchPage() {
       }));
 
       // Wait for RPC propagation of the new config account
-      console.log("Waiting for config propagation...");
       await new Promise((resolve) => setTimeout(resolve, 3000));
 
       // Step 2: Create launch transaction
@@ -497,13 +487,10 @@ export default function LaunchPage() {
       return;
     }
 
-    console.log(`Starting confirmation for tx: ${state.serializedTransaction.substring(0, 20)}... (len: ${state.serializedTransaction.length})`);
-
     setState((s) => ({ ...s, step: "signing" }));
 
     try {
       const signature = await signAndSendTransaction(state.serializedTransaction);
-      console.log("Launch transaction confirmed:", signature);
       setState((s) => ({
         ...s,
         signature,
@@ -580,7 +567,7 @@ export default function LaunchPage() {
               <div className="bg-[#07090c] rounded-lg p-4 mb-6">
                 <p className="text-sm text-[#9aa0a6] mb-1">Token Mint</p>
                 <a
-                  href={`https://solscan.io/token/${state.tokenMint}`}
+                  href={`https://bags.fm/${state.tokenMint}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#00ff7f] font-mono text-sm break-all hover:underline"

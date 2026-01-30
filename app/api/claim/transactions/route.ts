@@ -78,7 +78,6 @@ export async function POST(request: NextRequest) {
     if (!hasVirtualPool && !hasDammV2 && !hasCustomVault) {
       // Don't error here - let the Bags API handle validation
       // This allows for more flexible claim configurations
-      // console.log('No explicit claim flags set, forwarding to Bags API for validation');
     }
 
     // Validate wallet address format (base58, 32-44 chars)
@@ -142,7 +141,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Call Bags API to get claim transactions
-    // console.log('[Claim API] Forwarding request to Bags API:', JSON.stringify(body, null, 2));
 
     const response = await fetch(
       `${BAGS_API_BASE}/token-launch/claim-txs/v2`,
@@ -157,7 +155,6 @@ export async function POST(request: NextRequest) {
     );
 
     const data = await response.json();
-    // console.log('[Claim API] Bags API response:', JSON.stringify(data, null, 2));
 
     if (!response.ok) {
       console.error('[Claim API] Bags API error:', data);

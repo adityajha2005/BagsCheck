@@ -108,16 +108,6 @@ export default function MyTokensPage() {
       }
 
       if (data.success && Array.isArray(data.response)) {
-        // console.log('[MyTokens] Found', data.response.length, 'positions');
-        data.response.forEach((pos: ClaimablePosition, i: number) => {
-          // console.log(`[MyTokens] Position ${i}:`, {
-          //   baseMint: pos.baseMint,
-          //   virtualPool: pos.virtualPool || pos.virtualPoolAddress,
-          //   dammPositionInfo: pos.dammPositionInfo ? 'present' : 'null',
-          //   totalClaimable: pos.totalClaimableLamportsUserShare,
-          //   isCustomFeeVault: pos.isCustomFeeVault,
-          // });
-        });
         setPositions(data.response);
 
         // Calculate total claimable amount
@@ -127,7 +117,6 @@ export default function MyTokensPage() {
         setTotalClaimable(total);
         setLastUpdated(new Date());
       } else {
-        // console.log('[MyTokens] No positions found or invalid response');
         setPositions([]);
         setTotalClaimable(0);
       }
@@ -179,7 +168,6 @@ export default function MyTokensPage() {
             } as TokenMetadata,
           };
         } catch (e) {
-          // console.log(`[MyTokens] Failed to fetch metadata for ${mint}:`, e);
           return {
             mint,
             metadata: {
@@ -219,7 +207,6 @@ export default function MyTokensPage() {
 
       // Set up auto-refresh every 60 seconds (1 minute)
       const intervalId = setInterval(() => {
-        // console.log('[MyTokens] Auto-refreshing positions...');
         fetchPositions();
       }, 60000); // 60 seconds
 

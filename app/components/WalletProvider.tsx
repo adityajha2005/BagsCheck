@@ -19,6 +19,7 @@ import { clusterApiUrl, Connection } from "@solana/web3.js";
 
 // Import wallet adapter CSS
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 
 interface WalletProviderProps {
   children: ReactNode;
@@ -47,7 +48,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
   // Configure wallets
   const wallets = useMemo(
     () => [
-      new PhantomWalletAdapter(),
+      // new PhantomWalletAdapter(),
+      new SolflareWalletAdapter(),
       // TODO: Add more wallets as needed (Solflare, Backpack, etc.)
     ],
     []

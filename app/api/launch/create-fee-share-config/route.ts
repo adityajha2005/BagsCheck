@@ -37,8 +37,6 @@ export async function POST(request: NextRequest) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000); // Increased timeout
 
-        console.log("Creating fee share config via Bags API:", JSON.stringify(body));
-
         const response = await fetch(
             `${BAGS_API_BASE}/fee-share/config`,
             {
@@ -64,7 +62,6 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await response.json();
-        console.log("Bags API fee config response:", JSON.stringify(data));
 
         if (!data.success) {
             return NextResponse.json(

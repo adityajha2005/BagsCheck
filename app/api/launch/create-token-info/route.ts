@@ -116,7 +116,6 @@ export async function POST(request: NextRequest) {
       }
 
       const data = await response.json();
-      console.log("Bags API create-token-info response:", JSON.stringify(data, null, 2));
 
       if (!data.success) {
         return NextResponse.json(

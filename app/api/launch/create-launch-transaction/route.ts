@@ -161,8 +161,6 @@ export async function POST(request: NextRequest) {
         bagsRequestBody.tipLamports = tipLamports;
       }
 
-      console.log("Sending to Bags API:", JSON.stringify(bagsRequestBody));
-
       const response = await fetch(
         `${BAGS_API_BASE}/token-launch/create-launch-transaction`,
         {
@@ -188,7 +186,6 @@ export async function POST(request: NextRequest) {
       }
 
       const data = await response.json();
-      console.log("Bags API launch response:", JSON.stringify(data));
 
       if (!data.success) {
         return NextResponse.json(
@@ -216,6 +213,7 @@ export async function POST(request: NextRequest) {
         // Include additional info for the UI
         tokenMint: body.tokenMint,
       });
+
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === "AbortError") {
