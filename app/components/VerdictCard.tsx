@@ -54,7 +54,7 @@ ${why}`;
 
   return (
     <div
-      className={`bg-bags-bg-card border border-bags-border ${config.leftBorderColor} border-l-2 p-8 space-y-4 relative rounded-lg`}
+      className={`bg-bags-bg-card border border-bags-border ${config.leftBorderColor} border-l-2 p-4 md:p-8 space-y-4 relative rounded-lg`}
     >
       {/* Verdict Label */}
       <div className="flex items-center gap-3">

@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { WalletProvider } from "./components/WalletProvider";
+import { Header } from "./components/Header";
 import "./globals.css";
+import "./wallet-styles.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +42,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <WalletProvider>
+          <Header />
+          {children}
+        </WalletProvider>
         <Analytics />
       </body>
     </html>

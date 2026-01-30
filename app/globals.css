@@ -13,7 +13,7 @@
   --color-green: #00ff7f;
   --color-green-alt: #00e676;
   --color-accent-red: #ef4444;
-  
+
   /* Tailwind color mappings */
   --color-bags-bg-primary: var(--color-bg-primary);
   --color-bags-bg-secondary: var(--color-bg-secondary);
@@ -26,11 +26,11 @@
   --color-bags-green: var(--color-green);
   --color-bags-green-alt: var(--color-green-alt);
   --color-bags-accent-red: var(--color-accent-red);
-  
+
   /* Default background and foreground */
   --color-background: var(--color-bg-primary);
   --color-foreground: var(--color-text-primary);
-  
+
   /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -42,4 +42,134 @@ body {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Wallet Adapter Modal Custom Styles */
+.wallet-adapter-modal-wrapper {
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(8px);
+}
+
+.wallet-adapter-modal {
+  background: #000000 !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 60px rgba(2, 255, 64, 0.1) !important;
+  max-width: 400px !important;
+  padding: 24px !important;
+}
+
+.wallet-adapter-modal-title {
+  color: #ffffff !important;
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin-bottom: 24px !important;
+  text-align: center !important;
+}
+
+.wallet-adapter-modal-list {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background: #0a0a0a !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  margin: 8px 0 !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover:not([disabled]) {
+  background: #0f0f0f !important;
+  border-color: #02ff40 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 255, 64, 0.15) !important;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:active:not([disabled]) {
+  transform: translateY(0);
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button-start-icon {
+  width: 32px !important;
+  height: 32px !important;
+  flex-shrink: 0;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button-end-icon {
+  margin-left: auto !important;
+  color: #6b7280 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+.wallet-adapter-button-trigger {
+  background: #02ff40 !important;
+  color: #000000 !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 10px 20px !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.wallet-adapter-button-trigger:hover:not([disabled]) {
+  background: #01e63a !important;
+  box-shadow: 0 4px 12px rgba(2, 255, 64, 0.3) !important;
+}
+
+.wallet-adapter-modal-button-close {
+  background: #1a1a1a !important;
+  border-radius: 50% !important;
+  padding: 8px !important;
+  position: absolute !important;
+  top: 20px !important;
+  right: 20px !important;
+  border: none !important;
+  transition: all 0.2s ease !important;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  background: #2a2a2a !important;
+  transform: scale(1.05);
+}
+
+.wallet-adapter-modal-button-close svg {
+  width: 16px !important;
+  height: 16px !important;
+  color: #9aa0a6 !important;
+}
+
+.wallet-adapter-modal-list li {
+  list-style: none !important;
+}
+
+/* Dropdown menu styling */
+.wallet-adapter-dropdown {
+  background: #000000 !important;
+  border: 1px solid #1a1a1a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.wallet-adapter-dropdown-list {
+  padding: 8px !important;
+}
+
+.wallet-adapter-dropdown-list-item {
+  background: transparent !important;
+  color: #ffffff !important;
+  padding: 12px 16px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.wallet-adapter-dropdown-list-item:hover {
+  background: #0f0f0f !important;
+  color: #02ff40 !important;
 }

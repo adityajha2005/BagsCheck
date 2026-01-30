@@ -6,16 +6,16 @@ interface Claimer {
   wallet: string;
   totalClaimed: string; // lamports as string
   provider?:
-    | "apple"
-    | "google"
-    | "email"
-    | "solana"
-    | "twitter"
-    | "tiktok"
-    | "kick"
-    | "instagram"
-    | "onlyfans"
-    | "github"; // May be unknown or null
+  | "apple"
+  | "google"
+  | "email"
+  | "solana"
+  | "twitter"
+  | "tiktok"
+  | "kick"
+  | "instagram"
+  | "onlyfans"
+  | "github"; // May be unknown or null
   providerUsername?: string | null; // Provider username, when available
 }
 
@@ -64,13 +64,13 @@ export function ClaimersBreakdown({ claimers, lifetimeFeesSOL }: ClaimersBreakdo
               : null;
 
           // Display name: prefer providerUsername, fallback to username, then wallet
-          const displayName = claimer.providerUsername || claimer.username || 
-                             `${claimer.wallet.slice(0, 4)}...${claimer.wallet.slice(-4)}`;
+          const displayName = claimer.providerUsername || claimer.username ||
+            `${claimer.wallet.slice(0, 4)}...${claimer.wallet.slice(-4)}`;
 
           return (
             <div
               key={idx}
-              className="flex items-center justify-between p-4 bg-bags-bg-panel border border-bags-border hover:border-bags-border/60 transition-colors"
+              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-bags-bg-panel border border-bags-border hover:border-bags-border/60 transition-colors gap-3 sm:gap-0"
             >
               {/* Left: Profile info */}
               <div className="flex items-center gap-3">
@@ -118,7 +118,7 @@ export function ClaimersBreakdown({ claimers, lifetimeFeesSOL }: ClaimersBreakdo
               </div>
 
               {/* Right: Claimed amount */}
-              <div className="text-right">
+              <div className="text-left sm:text-right pl-[3.25rem] sm:pl-0">
                 {hasClaimed ? (
                   <>
                     <div className="text-white font-semibold font-mono">
