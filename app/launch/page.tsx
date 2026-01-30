@@ -1,27 +1,3 @@
-/**
- * Token Launch Page
- * 
- * Mirrors the Bags.fm token launch flow:
- * - Token metadata form (name, symbol, description, image)
- * - Initial buy amount (SOL)
- * - Fee sharing toggle
- * - Review and sign transaction
- * 
- * Flow:
- * 1. User fills form and uploads image
- * 2. Backend uploads metadata to Bags API → returns tokenMint
- * 3. Backend creates launch transaction → returns serialized tx
- * 4. User reviews and signs with wallet
- * 5. Transaction sent to Solana RPC
- * 
- * TODO: AI Feature Hooks (marked with TODO comments):
- * - Auto-generate token name/symbol from concept
- * - Auto-generate description
- * - Suggest optimal initial buy amount
- * - Recommend fee sharing splits
- * - Risk assessment of token parameters
- */
-
 "use client";
 import bs58 from "bs58";
 import { Header } from "../components";
