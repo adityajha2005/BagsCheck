@@ -11,7 +11,7 @@ export function FeeOverview({
 }: FeeOverviewProps) {
   return (
     <div className="bg-bags-bg-card border border-bags-border p-6">
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Lifetime Fees */}
         <div className="space-y-1 text-center">
           <div className="text-2xl font-bold text-white font-mono">

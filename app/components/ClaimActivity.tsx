@@ -93,16 +93,16 @@ export function ClaimActivity({
     <div className="bg-bags-bg-card border border-bags-border p-6">
       <h3 className="text-lg font-medium text-white mb-6">Claim Activity</h3>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Status */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
             {/* <div
               className={`inline-flex items-center gap-2 ${config.bgColor} border ${config.borderColor} px-3 py-1.5 rounded`}
             > */}
-              <div className={`w-2 h-2 rounded-full ${config.color.replace("text-", "bg-")}`} />
-              <span className={`text-xl font-bold ${config.color}`}>{status}</span>
-            </div>
+            <div className={`w-2 h-2 rounded-full ${config.color.replace("text-", "bg-")}`} />
+            <span className={`text-xl font-bold ${config.color}`}>{status}</span>
+          </div>
           {/* </div> */}
           <div className="text-xs text-bags-text-muted">Status</div>
         </div>

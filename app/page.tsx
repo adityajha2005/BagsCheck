@@ -52,7 +52,7 @@ export default function Home() {
       if (!response.ok) {
         const errorData = await response.json();
         let errorMessage = errorData.error || "Failed to fetch token data";
-        
+
         // Handle specific status codes
         if (response.status === 429) {
           errorMessage = "Too many requests. Please wait a moment and try again.";
@@ -61,7 +61,7 @@ export default function Home() {
         } else if (response.status === 502) {
           errorMessage = errorData.error || "Service temporarily unavailable. Please try again.";
         }
-        
+
         throw new Error(errorMessage);
       }
 
@@ -87,7 +87,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="pt-16 min-h-screen">
-        <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto px-4 py-8 md:px-6 md:py-12">
           {/* Token Input - Always visible */}
           <div className="mb-12">
             <TokenInput
