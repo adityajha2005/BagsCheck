@@ -42,10 +42,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <WalletProvider>
-          <Header />
-          {children}
-        </WalletProvider>
+        {children}
         <Analytics />
       </body>
     </html>
